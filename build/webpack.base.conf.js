@@ -3,12 +3,25 @@ const path = require('path')
 const utils = require('./utils')
 const config = require('../config')
 const vueLoaderConfig = require('./vue-loader.conf')
+const AntDesignThemePlugin = require('antd-theme-webpack-plugin');
 
-function resolve (dir) {
+const options = {
+  themeVariables: ['@secondary-color'],
+  indexFileName: 'index.html',
+  generateOnce: false,
+  publicPath: process.env.NODE_ENV === 'production' ?
+    config.build.assetsPublicPath : config.dev.assetsPublicPath
+}
+
+const themePlugin = new AntDesignThemePlugin(options);
+
+function resolve(dir) {
   return path.join(__dirname, '..', dir)
 }
 
-
+const {
+  VueLoaderPlugin
+} = require('vue-loader')
 
 module.exports = {
   context: path.resolve(__dirname, '../'),
@@ -18,9 +31,8 @@ module.exports = {
   output: {
     path: config.build.assetsRoot,
     filename: '[name].js',
-    publicPath: process.env.NODE_ENV === 'production'
-      ? config.build.assetsPublicPath
-      : config.dev.assetsPublicPath
+    publicPath: process.env.NODE_ENV === 'production' ?
+      config.build.assetsPublicPath : config.dev.assetsPublicPath
   },
   resolve: {
     extensions: ['.js', '.vue', '.json'],
@@ -30,8 +42,7 @@ module.exports = {
     }
   },
   module: {
-    rules: [
-      {
+    rules: [{
         test: /\.vue$/,
         loader: 'vue-loader',
         options: vueLoaderConfig
@@ -67,6 +78,10 @@ module.exports = {
       }
     ]
   },
+  plugins: [
+    themePlugin,
+    new VueLoaderPlugin()
+  ],
   node: {
     // prevent webpack from injecting useless setImmediate polyfill because Vue
     // source contains it (although only uses it if it's native).
